@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="h-full bg-[#FAF7F2]">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我最喜歡的一本書 × AI 音樂影片腳本創作</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bookBg: '#FAF7F2',
+            bookPaper: '#FFFDF9',
+            literaryBlue: '#1E6091',
+            coralOrange: '#FF6B6B',
+            warmAmber: '#F4A261',
+            sageGreen: '#2A9D8F'
+          },
+          fontFamily: {
+            sans: ['Noto Sans TC', 'Outfit', 'sans-serif'],
+            display: ['Outfit', 'Noto Sans TC', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Noto Sans TC & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Canvas Confetti Library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background-color: #FAF7F2;
+    }
+    .step-active {
+      background-color: #1E6091;
+      color: white;
+      border-color: #1E6091;
+    }
+    .step-completed {
+      background-color: #2A9D8F;
+      color: white;
+      border-color: #2A9D8F;
+    }
+    .chip-selected {
+      background-color: #FF6B6B !important;
+      color: white !important;
+      border-color: #FF6B6B !important;
+      box-shadow: 0 4px 6px -1px rgba(255, 107, 107, 0.3);
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #FAF7F2; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+  </style>
+</head>
+<body class="min-h-full flex flex-col text-slate-800 antialiased selection:bg-coralOrange selection:text-white">
+
+  <header class="sticky top-0 z-30 bg-bookPaper/90 backdrop-blur-md border-b border-amber-900/10 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-literaryBlue to-coralOrange text-white flex items-center justify-center shadow-md font-bold text-xl">
+          <i class="fa-solid fa-book-open"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-base sm:text-lg text-slate-900 leading-tight">
+            我最喜歡的一本書 <span class="text-coralOrange">×</span> AI 音樂影片腳本
+          </h1>
+          <p class="text-xs text-slate-500 font-medium">Reading Literacy & AI Creative Music Video Prompt Assignment</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Load Sample Data Button -->
+        <button id="loadSampleBtn" onclick="loadSampleData()" type="button" title="填入範例作品 (Sample Demo)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-800 bg-amber-100/80 hover:bg-amber-200/80 rounded-lg transition shadow-sm border border-amber-300/50">
+          <i class="fa-solid fa-wand-magic-sparkles text-coralOrange"></i>
+          <span class="hidden md:inline">戴入範例</span> Demo
+        </button>
+
+        <!-- ★ 僅顯示齒輪圖示，不暴露 GAS URL ★ -->
+        <button onclick="openGasModal()" type="button" title="教師設定" class="inline-flex items-center justify-center w-9 h-9 text-slate-500 bg-slate-100 hover:bg-slate-200 rounded-lg transition border border-slate-300/60 shadow-sm">
+          <i class="fa-solid fa-gear text-literaryBlue"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 flex flex-col justify-start">
+
+    <section class="mb-8 bg-bookPaper p-4 sm:p-6 rounded-2xl border border-amber-900/10 shadow-sm">
+      <div class="flex items-center justify-between relative">
+        <div class="absolute top-1/2 left-0 right-0 h-1 bg-slate-200 -translate-y-1/2 z-0 rounded-full"></div>
+        <div id="progressLine" class="absolute top-1/2 left-0 h-1 bg-literaryBlue -translate-y-1/2 z-0 rounded-full transition-all duration-300" style="width: 0%;"></div>
+
+        <div class="relative z-10 flex flex-col items-center cursor-pointer group" onclick="goToStep(1)">
+          <div id="stepCircle-1" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full border-2 border-slate-300 bg-white text-slate-600 flex items-center justify-center font-bold text-sm sm:text-base transition-all duration-300 shadow-sm group-hover:scale-105 step-active">1</div>
+          <span class="text-[11px] sm:text-xs font-medium text-slate-600 mt-1.5 text-center hidden sm:block">基本資料<br><span class="text-[9px] text-slate-400">Basic Info</span></span>
+        </div>
+
+        <div class="relative z-10 flex flex-col items-center cursor-pointer group" onclick="goToStep(2)">
+          <div id="stepCircle-2" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full border-2 border-slate-300 bg-white text-slate-600 flex items-center justify-center font-bold text-sm sm:text-base transition-all duration-300 shadow-sm group-hover:scale-105">2</div>
+          <span class="text-[11px] sm:text-xs font-medium text-slate-600 mt-1.5 text-center hidden sm:block">書籍閱讀解析<br><span class="text-[9px] text-slate-400">Favorite Book</span></span>
+        </div>
+
+        <div class="relative z-10 flex flex-col items-center cursor-pointer group" onclick="goToStep(3)">
+          <div id="stepCircle-3" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full border-2 border-slate-300 bg-white text-slate-600 flex items-center justify-center font-bold text-sm sm:text-base transition-all duration-300 shadow-sm group-hover:scale-105">3</div>
+          <span class="text-[11px] sm:text-xs font-medium text-slate-600 mt-1.5 text-center hidden sm:block">AI 音樂與歌詞<br><span class="text-[9px] text-slate-400">AI Song & Prompt</span></span>
+        </div>
+
+        <div class="relative z-10 flex flex-col items-center cursor-pointer group" onclick="goToStep(4)">
+          <div id="stepCircle-4" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full border-2 border-slate-300 bg-white text-slate-600 flex items-center justify-center font-bold text-sm sm:text-base transition-all duration-300 shadow-sm group-hover:scale-105">4</div>
+          <span class="text-[11px] sm:text-xs font-medium text-slate-600 mt-1.5 text-center hidden sm:block">MV 視覺腳本<br><span class="text-[9px] text-slate-400">Visual Storyboard</span></span>
+        </div>
+
+        <div class="relative z-10 flex flex-col items-center cursor-pointer group" onclick="goToStep(5)">
+          <div id="stepCircle-5" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full border-2 border-slate-300 bg-white text-slate-600 flex items-center justify-center font-bold text-sm sm:text-base transition-all duration-300 shadow-sm group-hover:scale-105">5</div>
+          <span class="text-[11px] sm:text-xs font-medium text-slate-600 mt-1.5 text-center hidden sm:block">成果預覽提交<br><span class="text-[9px] text-slate-400">Submit</span></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- FORM WRAPPER -->
+    <form id="homeworkForm" onsubmit="handleFormSubmit(event)" class="bg-bookPaper rounded-2xl border border-amber-900/10 shadow-lg p-6 sm:p-8 flex-1 flex flex-col justify-between">
+
+      <!-- STEP 1: 基本資料 -->
+      <div id="stepContent-1" class="step-panel">
+        <div class="border-b border-slate-200 pb-4 mb-6">
+          <div class="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-literaryBlue text-xs font-bold rounded-full mb-2">
+            <span>STEP 1 / 5</span><span>•</span><span>學生基本資料</span>
+          </div>
+          <h2 class="text-2xl font-bold text-slate-800">請填寫你的班級與姓名</h2>
+          <p class="text-sm text-slate-500 mt-1">First, let's get to know who you are!</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <label for="studentClass" class="block text-sm font-bold text-slate-700 mb-2">班級 <span class="text-xs text-slate-400 font-normal">(Class)</span> <span class="text-coralOrange">*</span></label>
+            <div class="relative">
+              <select id="studentClass" required class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-literaryBlue focus:border-literaryBlue block p-3 pr-8 appearance-none transition">
+                <option value="" disabled selected>請選擇班級</option>
+                <script>for(let i=1;i<=20;i++){document.write(`<option value="${i} 班">${i} 班</option>`);}</script>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500">
+                <i class="fa-solid fa-chevron-down text-xs"></i>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label for="seatNumber" class="block text-sm font-bold text-slate-700 mb-2">座號 <span class="text-xs text-slate-400 font-normal">(Seat No.)</span> <span class="text-coralOrange">*</span></label>
+            <input type="number" id="seatNumber" min="1" max="40" placeholder="例如：12" required class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-literaryBlue focus:border-literaryBlue block p-3 transition">
+          </div>
+
+          <div>
+            <label for="studentName" class="block text-sm font-bold text-slate-700 mb-2">姓名 <span class="text-xs text-slate-400 font-normal">(Full Name)</span> <span class="text-coralOrange">*</span></label>
+            <input type="text" id="studentName" placeholder="例如：林小明" required class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-literaryBlue focus:border-literaryBlue block p-3 transition">
+          </div>
+        </div>
+
+        <div class="mt-8 p-4 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800 flex items-start gap-3">
+          <i class="fa-solid fa-lightbulb text-base text-coralOrange mt-0.5"></i>
+          <div><span class="font-bold">課程叮嚀：</span> 本學習單將協助你把一本鍾愛的作品轉化為「AI 音樂影片 (MV) 提示詞腳本」。請用心填寫後續欄位，最後可一鍵生成完整的 Suno 及 Midjourney/Runway 提示詞指令集！</div>
+        </div>
+      </div>
+
+      <!-- STEP 2: 我最喜歡的一本書 -->
+      <div id="stepContent-2" class="step-panel hidden">
+        <div class="border-b border-slate-200 pb-4 mb-6">
+          <div class="inline-flex items-center gap-2 px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full mb-2">
+            <span>STEP 2 / 5</span><span>•</span><span>我最喜歡的一本書</span>
+          </div>
+          <h2 class="text-2xl font-bold text-slate-800">深度閱讀與心靈契合</h2>
+          <p class="text-sm text-slate-500 mt-1">Tell us about the book that touched your heart.</p>
+        </div>
+
+        <div class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="bookTitle" class="block text-sm font-bold text-slate-700 mb-2">書名 <span class="text-xs text-slate-400 font-normal">(Book Title)</span> <span class="text-coralOrange">*</span></label>
+              <input type="text" id="bookTitle" placeholder="例如：《小王子》/ The Little Prince" required class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-literaryBlue focus:border-literaryBlue block p-3 transition">
+            </div>
+            <div>
+              <label for="bookAuthor" class="block text-sm font-bold text-slate-700 mb-2">作者 <span class="text-xs text-slate-400 font-normal">(Author)</span></label>
+              <input type="text" id="bookAuthor" placeholder="例如：安東尼·聖修伯里 (Antoine de Saint-Exupéry)" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-literaryBlue focus:border-literaryBlue block p-3 transition">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2">書的類型 <span class="text-xs text-slate-400 font-normal">(Genre)</span> <span class="text-coralOrange">*</span></label>
+            <div class="flex flex-wrap gap-2.5">
+              <button type="button" onclick="selectGenre(this, '小說 Novel')" class="genre-chip px-4 py-2 text-xs font-medium rounded-xl border border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100 transition">小說 Novel</button>
+              <button type="button" onclick="selectGenre(this, '散文 Prose')" class="genre-chip px-4 py-2 text-xs font-medium rounded-xl border border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100 transition">散文 Prose</button>
+              <button type="button" onclick="selectGenre(this, '科幻 Sci-Fi')" class="genre-chip px-4 py-2 text-xs font-medium rounded-xl border border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100 transition">科幻 Sci-Fi</button>
+              <button type="button" onclick="selectGenre(this, '奇幻 Fantasy')" class="genre-chip px-4 py-2 text-xs font-medium rounded-xl border border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100 transition">奇幻 Fantasy</button>
+              <button type="button" onclick="selectGenre(this, '傳記 Biography')" class="genre-chip px-4 py-2 text-xs font-medium rounded-xl border border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100 transition">傳記 Biography</button>
+              <button type="button" onclick="selectGenre(this, '漫畫 Graphic Novel')" class="genre-chip px-4 py-2 text-xs font-medium rounded-xl border border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100 transition">漫畫 Graphic Novel</button>
+              <button type="button" onclick="selectGenre(this, '其他 Other')" class="genre-chip px-4 py-2 text-xs font-medium rounded-xl border border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100 transition">其他 Other</button>
+            </div>
+            <input type="hidden" id="bookGenre" required value="小說 Novel">
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label for="bookSummary" class="block text-sm font-bold text-slate-700">這本書的核心主題/故事重點 <span class="text-xs text-slate-400 font-normal">(Core Theme & Plot)</span> <span class="text-coralOrange">*</span></label>
+              <span id="summaryCounter" class="text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">0 / 200 字 (建議 50～200字)</span>
+            </div>
+            <textarea id="bookSummary" rows="3" oninput="updateWordCount('bookSummary', 'summaryCounter', 50, 200)" required placeholder="用 2～3 句話說明這本書在講什麼...（例如：故事講述一位飛行員在沙漠中遇見來自 B-612 星球的小王子，並透過與狐狸、玫瑰的相處，重新思考愛與責任的真諦。）" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-literaryBlue focus:border-literaryBlue p-3 transition"></textarea>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label for="bookFavoritePart" class="block text-sm font-bold text-slate-700">你最喜歡的角色或段落 <span class="text-xs text-slate-400 font-normal">(Favorite Character or Excerpt)</span></label>
+              <span id="partCounter" class="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">0 字</span>
+            </div>
+            <textarea id="bookFavoritePart" rows="2" oninput="updateSimpleCount('bookFavoritePart', 'partCounter')" placeholder="描述最觸動你的角色、場景或句子，以及為什麼...（例如：我最喜歡狐狸對小王子說的「真正重要的東西，用眼睛是看不見的」，這讓我了解到用心感受人際關係的珍貴。）" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-literaryBlue focus:border-literaryBlue p-3 transition"></textarea>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label for="bookImpact" class="block text-sm font-bold text-slate-700">這本書帶給你的感受或影響 <span class="text-xs text-slate-400 font-normal">(Personal Impact & Feeling)</span></label>
+              <span id="impactCounter" class="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">0 字</span>
+            </div>
+            <textarea id="bookImpact" rows="2" oninput="updateSimpleCount('bookImpact', 'impactCounter')" placeholder="讀完這本書，你有什麼感受？它改變了你的想法嗎？...（例如：這本書讓我在忙碌的高中生活裡重新學會停下腳步，關心身邊的朋友與家人，別讓自己變成現實的大人。）" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-literaryBlue focus:border-literaryBlue p-3 transition"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: AI 音樂與歌詞風格設定 -->
+      <div id="stepContent-3" class="step-panel hidden">
+        <div class="border-b border-slate-200 pb-4 mb-6">
+          <div class="inline-flex items-center gap-2 px-3 py-1 bg-rose-100 text-coralOrange text-xs font-bold rounded-full mb-2">
+            <span>STEP 3 / 5</span><span>•</span><span>AI 音樂風格與歌詞提示詞 <span class="font-normal font-mono">(Suno / Udio Prompt)</span></span>
+          </div>
+          <h2 class="text-2xl font-bold text-slate-800">為這本書創作主題曲風格</h2>
+          <p class="text-sm text-slate-500 mt-1">Design the musical vibe and lyrics for your book's AI theme song.</p>
+        </div>
+
+        <div class="space-y-6">
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-1.5">音樂風格標籤 <span class="text-xs text-slate-400 font-normal">(Music Genres & Vibe Prompts - 可複選)</span></label>
+            <p class="text-xs text-slate-500 mb-2.5">點擊標籤可自動加入英文提示詞（可供 Suno AI 直接使用）：</p>
+            <div id="musicTagContainer" class="flex flex-wrap gap-2">
+              <button type="button" onclick="toggleMusicTag(this, 'Pop')" class="music-tag px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-slate-50 text-slate-700 hover:border-coralOrange hover:text-coralOrange transition">流行 Pop</button>
+              <button type="button" onclick="toggleMusicTag(this, 'Acoustic Guitar')" class="music-tag px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-slate-50 text-slate-700 hover:border-coralOrange hover:text-coralOrange transition">木吉他 Acoustic</button>
+              <button type="button" onclick="toggleMusicTag(this, 'Cinematic Orchestral')" class="music-tag px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-slate-50 text-slate-700 hover:border-coralOrange hover:text-coralOrange transition">史詩交響 Cinematic</button>
+              <button type="button" onclick="toggleMusicTag(this, 'Lo-Fi Chill')" class="music-tag px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-slate-50 text-slate-700 hover:border-coralOrange hover:text-coralOrange transition">Lo-Fi 輕鬆</button>
+              <button type="button" onclick="toggleMusicTag(this, 'Synthwave Cyberpunk')" class="music-tag px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-slate-50 text-slate-700 hover:border-coralOrange hover:text-coralOrange transition">電子合成 Synthwave</button>
+              <button type="button" onclick="toggleMusicTag(this, 'Emotional Piano')" class="music-tag px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-slate-50 text-slate-700 hover:border-coralOrange hover:text-coralOrange transition">深情鋼琴 Piano</button>
+              <button type="button" onclick="toggleMusicTag(this, 'Rock Ballad')" class="music-tag px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-slate-50 text-slate-700 hover:border-coralOrange hover:text-coralOrange transition">搖滾抒情 Rock</button>
+              <button type="button" onclick="toggleMusicTag(this, 'Warm Male Vocal')" class="music-tag px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-slate-50 text-slate-700 hover:border-coralOrange hover:text-coralOrange transition">溫暖男聲 Male Vocal</button>
+              <button type="button" onclick="toggleMusicTag(this, 'Ethereal Female Vocal')" class="music-tag px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-slate-50 text-slate-700 hover:border-coralOrange hover:text-coralOrange transition">空靈女聲 Female Vocal</button>
+            </div>
+          </div>
+
+          <div>
+            <label for="musicStylePrompts" class="block text-sm font-bold text-slate-700 mb-2">Suno / Udio 曲風提示詞 <span class="text-xs font-mono text-coralOrange">(AI Music Style Prompts in English)</span></label>
+            <input type="text" id="musicStylePrompts" placeholder="例如：acoustic guitar, warm male vocal, emotional piano, gentle 85 bpm" class="w-full bg-slate-900 text-emerald-400 font-mono text-sm rounded-xl p-3 border border-slate-800 focus:ring-2 focus:ring-coralOrange transition shadow-inner">
+          </div>
+
+          <div>
+            <label for="songTitle" class="block text-sm font-bold text-slate-700 mb-2">歌曲名稱 <span class="text-xs text-slate-400 font-normal">(Song Title)</span> <span class="text-coralOrange">*</span></label>
+            <input type="text" id="songTitle" placeholder="例如：《B-612 的玫瑰》/ Rose in the Desert" required class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-literaryBlue focus:border-literaryBlue p-3 transition">
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label for="songLyrics" class="block text-sm font-bold text-slate-700">歌詞結構與內容 <span class="text-xs text-slate-400 font-normal">(Lyrics Structure - [Verse] & [Chorus])</span> <span class="text-coralOrange">*</span></label>
+              <button type="button" onclick="insertLyricsTemplate()" class="text-xs text-literaryBlue font-semibold hover:underline"><i class="fa-solid fa-plus-circle"></i> 插入歌詞結構範本</button>
+            </div>
+            <textarea id="songLyrics" rows="6" required placeholder="[Verse 1]&#10;漫步在黃沙之中 尋找那一朵獨一無二的玫瑰&#10;風吹過星星的眼眸 告訴我心靈的秘密&#10;&#10;[Chorus]&#10;真正重要的東西 眼睛看不見&#10;只有用我們的心 才能擁抱愛與明天" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm font-mono rounded-xl focus:ring-2 focus:ring-literaryBlue focus:border-literaryBlue p-3 transition"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4: MV 視覺分鏡腳本 -->
+      <div id="stepContent-4" class="step-panel hidden">
+        <div class="border-b border-slate-200 pb-4 mb-6">
+          <div class="inline-flex items-center gap-2 px-3 py-1 bg-emerald-100 text-sageGreen text-xs font-bold rounded-full mb-2">
+            <span>STEP 4 / 5</span><span>•</span><span>MV 視覺分鏡腳本 <span class="font-normal font-mono">(Visual Storyboard & Prompt)</span></span>
+          </div>
+          <h2 class="text-2xl font-bold text-slate-800">設計 AI 畫面分鏡提示詞</h2>
+          <p class="text-sm text-slate-500 mt-1">Translate key story moments into cinematic Midjourney / Runway prompts.</p>
+        </div>
+
+        <div class="space-y-6">
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2">美術視覺基調 <span class="text-xs text-slate-400 font-normal">(Art Style Prompt)</span></label>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <button type="button" onclick="selectArtStyle(this, 'Cinematic Film, 35mm, realistic lighting')" class="art-style-chip p-2.5 text-xs text-center rounded-xl border border-slate-300 bg-slate-50 hover:bg-slate-100 transition font-medium">🎬 電影紀實 Cinematic</button>
+              <button type="button" onclick="selectArtStyle(this, 'Makoto Shinkai style anime, vibrant blue sky')" class="art-style-chip p-2.5 text-xs text-center rounded-xl border border-slate-300 bg-slate-50 hover:bg-slate-100 transition font-medium">🎨 新海誠日系 Anime</button>
+              <button type="button" onclick="selectArtStyle(this, 'Watercolor painting, soft fairytale fantasy')" class="art-style-chip p-2.5 text-xs text-center rounded-xl border border-slate-300 bg-slate-50 hover:bg-slate-100 transition font-medium">🖌️ 水彩童話 Watercolor</button>
+              <button type="button" onclick="selectArtStyle(this, 'Cyberpunk neon light, highly detailed 8k')" class="art-style-chip p-2.5 text-xs text-center rounded-xl border border-slate-300 bg-slate-50 hover:bg-slate-100 transition font-medium">⚡ 賽博朋克 Cyberpunk</button>
+            </div>
+            <input type="hidden" id="selectedArtStyle" value="Cinematic Film, 35mm, realistic lighting">
+          </div>
+
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-literaryBlue">Scene 1 — 開場畫面 (Intro Scene)</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <input type="text" id="scene1Desc" placeholder="畫面描述：廣袤沙漠中孤單的小星球與微小的小王子" class="bg-white border border-slate-300 text-xs rounded-lg p-2.5 focus:ring-2 focus:ring-literaryBlue">
+              <input type="text" id="scene1Prompt" placeholder="AI 英文提示詞：A lonely little prince standing on a tiny planet in a vast golden desert, starry night, 8k --ar 16:9" class="bg-slate-900 text-amber-300 font-mono text-xs rounded-lg p-2.5 border border-slate-800 focus:ring-2 focus:ring-coralOrange">
+            </div>
+          </div>
+
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-coralOrange">Scene 2 — 高潮轉折 (Climax / Transition)</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <input type="text" id="scene2Desc" placeholder="畫面描述：小王子與紅玫瑰在玻璃罩下溫馨對話" class="bg-white border border-slate-300 text-xs rounded-lg p-2.5 focus:ring-2 focus:ring-literaryBlue">
+              <input type="text" id="scene2Prompt" placeholder="AI 英文提示詞：Close up of a glowing red rose under a glass dome, warm sunset light --ar 16:9" class="bg-slate-900 text-amber-300 font-mono text-xs rounded-lg p-2.5 border border-slate-800 focus:ring-2 focus:ring-coralOrange">
+            </div>
+          </div>
+
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-sageGreen">Scene 3 — 尾聲感悟 (Outro / Ending)</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <input type="text" id="scene3Desc" placeholder="畫面描述：夜空中閃爍的星群，小王子仰望繁星" class="bg-white border border-slate-300 text-xs rounded-lg p-2.5 focus:ring-2 focus:ring-literaryBlue">
+              <input type="text" id="scene3Prompt" placeholder="AI 英文提示詞：A boy looking up at thousands of laughing stars in the deep blue galaxy --ar 16:9" class="bg-slate-900 text-amber-300 font-mono text-xs rounded-lg p-2.5 border border-slate-800 focus:ring-2 focus:ring-coralOrange">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5: 成果預覽與提交 -->
+      <div id="stepContent-5" class="step-panel hidden">
+        <div class="border-b border-slate-200 pb-4 mb-6">
+          <div class="inline-flex items-center gap-2 px-3 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full mb-2">
+            <span>STEP 5 / 5</span><span>•</span><span>成果確認與提交</span>
+          </div>
+          <h2 class="text-2xl font-bold text-slate-800">檢查你的 AI 腳本作品卡片</h2>
+          <p class="text-sm text-slate-500 mt-1">Review your completed homework submission card before sending.</p>
+        </div>
+
+        <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-xl border border-slate-800 font-sans relative overflow-hidden mb-6">
+          <div class="absolute -right-12 -top-12 w-32 h-32 bg-coralOrange/20 rounded-full blur-2xl"></div>
+          <div class="absolute -left-12 -bottom-12 w-32 h-32 bg-literaryBlue/30 rounded-full blur-2xl"></div>
+
+          <div class="relative z-10 space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-800 pb-3 gap-2">
+              <div>
+                <span id="previewStudentBadge" class="text-xs px-2.5 py-1 bg-literaryBlue/40 text-blue-300 rounded-md font-semibold border border-blue-500/30">901 班 12 號 林小明</span>
+                <h3 id="previewBookTitle" class="text-xl font-bold text-amber-300 mt-2">《小王子》/ The Little Prince</h3>
+              </div>
+              <span id="previewGenre" class="text-xs px-3 py-1 bg-coralOrange/30 text-coralOrange rounded-full font-bold border border-coralOrange/40">小說 Novel</span>
+            </div>
+
+            <div>
+              <h4 class="text-xs uppercase tracking-wider text-slate-400 font-bold mb-1">📖 故事核心主題 Summary</h4>
+              <p id="previewSummary" class="text-xs text-slate-200 leading-relaxed bg-slate-800/60 p-3 rounded-lg border border-slate-700">尚未填寫...</p>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <h4 class="text-xs uppercase tracking-wider text-emerald-400 font-bold">🎵 Suno / Udio 音樂提示詞 Spec</h4>
+                <button type="button" onclick="copyText('previewSunoFull')" class="text-[10px] text-slate-400 hover:text-emerald-400 transition"><i class="fa-regular fa-copy"></i> 複製 Prompt</button>
+              </div>
+              <div id="previewSunoFull" class="text-xs font-mono text-emerald-300 bg-slate-950 p-3 rounded-lg border border-emerald-900/50 whitespace-pre-wrap">[Style]: acoustic guitar, warm male vocal, emotional&#10;[Title]: B-612 的玫瑰</div>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <h4 class="text-xs uppercase tracking-wider text-amber-400 font-bold">🎬 Midjourney / Runway 影片分鏡提示詞</h4>
+                <button type="button" onclick="copyText('previewMJFull')" class="text-[10px] text-slate-400 hover:text-amber-400 transition"><i class="fa-regular fa-copy"></i> 複製 Visual Prompts</button>
+              </div>
+              <div id="previewMJFull" class="text-xs font-mono text-amber-200/90 bg-slate-950 p-3 rounded-lg border border-amber-900/50 space-y-1">
+                <div>Scene 1: ...</div>
+                <div>Scene 2: ...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NAVIGATION BUTTONS -->
+      <div class="mt-8 pt-4 border-t border-slate-200 flex items-center justify-between gap-4">
+        <button id="prevBtn" type="button" onclick="changeStep(-1)" class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 font-bold text-xs sm:text-sm transition flex items-center gap-2 invisible">
+          <i class="fa-solid fa-arrow-left"></i> 上一步 <span class="hidden sm:inline">Previous</span>
+        </button>
+        <div class="flex items-center gap-3">
+          <button id="nextBtn" type="button" onclick="changeStep(1)" class="px-6 py-2.5 rounded-xl bg-literaryBlue hover:bg-blue-700 text-white font-bold text-xs sm:text-sm transition shadow-md flex items-center gap-2">
+            下一步 <span class="hidden sm:inline">Next</span> <i class="fa-solid fa-arrow-right"></i>
+          </button>
+          <button id="submitBtn" type="submit" class="hidden px-8 py-2.5 rounded-xl bg-gradient-to-r from-coralOrange to-rose-600 hover:from-rose-600 hover:to-coralOrange text-white font-bold text-xs sm:text-sm transition shadow-lg transform hover:scale-[1.02] flex items-center gap-2">
+            <i class="fa-solid fa-paper-plane"></i> 正式送出作業 <span class="hidden sm:inline">(Submit)</span>
+          </button>
+        </div>
+      </div>
+    </form>
+  </main>
+
+  <!-- MODAL: 教師設定（僅齒輪按鈕可開啟，學生不會知道有這功能） -->
+  <div id="gasModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 relative">
+      <button onclick="closeGasModal()" type="button" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-100 text-literaryBlue flex items-center justify-center text-lg">
+          <i class="fa-solid fa-link"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-800 text-base">Google Apps Script 設定</h3>
+          <p class="text-xs text-slate-500">教師專用 — 貼上接收作業的 GAS URL</p>
+        </div>
+      </div>
+      <p class="text-xs text-slate-600 mb-3 leading-relaxed">將以 <code class="bg-slate-100 px-1 rounded">https://script.google.com/macros/s/...</code> 開頭的 URL 貼入：</p>
+      <input type="url" id="gasUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-slate-50 border border-slate-300 text-xs font-mono rounded-xl p-3 mb-4 focus:ring-2 focus:ring-literaryBlue">
+      <div class="flex justify-end gap-2">
+        <button onclick="closeGasModal()" type="button" class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-lg">取消</button>
+        <button onclick="saveGasUrl()" type="button" class="px-5 py-2 text-xs font-bold text-white bg-literaryBlue hover:bg-blue-700 rounded-lg shadow">儲存設定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: 送出成功慶祝 -->
+  <div id="successModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-bookPaper rounded-3xl max-w-lg w-full p-8 shadow-2xl border border-amber-900/20 text-center relative overflow-hidden">
+      <div class="w-20 h-20 bg-emerald-100 text-sageGreen rounded-full flex items-center justify-center mx-auto mb-4 text-3xl shadow-inner">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <h3 class="text-2xl font-bold text-slate-800 mb-1">🎉 作業已成功送出！</h3>
+      <p class="text-xs text-slate-500 mb-6">Congratulations! Your AI Music Video Script Homework is submitted.</p>
+      <div class="p-4 bg-slate-900 text-left rounded-2xl mb-6 font-mono text-xs text-emerald-300 space-y-2 max-h-48 overflow-y-auto border border-slate-800">
+        <div class="text-slate-400 font-sans border-b border-slate-800 pb-1 text-[11px]">📋 生成的 AI 提示詞成果卡片：</div>
+        <div id="successPromptBundle" class="whitespace-pre-wrap text-[11px] leading-relaxed"></div>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <button type="button" onclick="copyText('successPromptBundle')" class="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs rounded-xl transition flex items-center justify-center gap-2">
+          <i class="fa-regular fa-copy"></i> 複製提示詞集
+        </button>
+        <button type="button" onclick="closeSuccessModal()" class="px-6 py-2.5 bg-literaryBlue hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition shadow-md">完成 Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ★ GAS URL 寫在這裡，不顯示在網頁上 ★
+    // 老師可透過右上角齒輪按鈕覆寫，或直接修改這一行
+    const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbzhlEmdJlYPcon4SoYG8Q5F9Z4-d5tBdK5Zrgms0qevrajUm5s6rkXtdfiVPUhpB3Ol/exec';
+
+    let currentStep = 1;
+    let selectedMusicTags = ['Pop', 'Acoustic Guitar'];
+    let gasWebAppUrl = DEFAULT_GAS_URL; // 預設使用上面的 URL
+
+    document.addEventListener('DOMContentLoaded', () => {
+      updateStepUI();
+      // 若教師曾透過齒輪按鈕存入不同 URL，優先使用
+      try {
+        const saved = localStorage.getItem('homework_gas_url');
+        if (saved) { gasWebAppUrl = saved; document.getElementById('gasUrlInput').value = saved; }
+        else { document.getElementById('gasUrlInput').value = DEFAULT_GAS_URL; }
+      } catch(e) {}
+    });
+
+    function openGasModal()  { document.getElementById('gasModal').classList.remove('hidden'); }
+    function closeGasModal() { document.getElementById('gasModal').classList.add('hidden'); }
+    function saveGasUrl() {
+      const url = document.getElementById('gasUrlInput').value.trim();
+      if (url) {
+        gasWebAppUrl = url;
+        try { localStorage.setItem('homework_gas_url', url); } catch(e) {}
+      }
+      closeGasModal();
+      showToast('✅ GAS Web App 網址已儲存！');
+    }
+    function closeSuccessModal() { document.getElementById('successModal').classList.add('hidden'); }
+
+    function changeStep(delta) {
+      if (delta > 0 && !validateCurrentStep()) return;
+      currentStep = Math.max(1, Math.min(5, currentStep + delta));
+      updateStepUI();
+    }
+    function goToStep(n) {
+      if (n > currentStep && !validateCurrentStep()) return;
+      currentStep = n; updateStepUI();
+    }
+
+    function updateStepUI() {
+      for (let i = 1; i <= 5; i++) {
+        const panel = document.getElementById(`stepContent-${i}`);
+        const circle = document.getElementById(`stepCircle-${i}`);
+        if (panel) panel.classList.add('hidden');
+        if (circle) {
+          circle.classList.remove('step-active', 'step-completed');
+          if (i < currentStep) { circle.classList.add('step-completed'); circle.innerHTML = '<i class="fa-solid fa-check"></i>'; }
+          else if (i === currentStep) { circle.classList.add('step-active'); circle.innerHTML = i; }
+          else { circle.innerHTML = i; }
+        }
+      }
+      const p = document.getElementById(`stepContent-${currentStep}`);
+      if (p) p.classList.remove('hidden');
+      const pl = document.getElementById('progressLine');
+      if (pl) pl.style.width = `${((currentStep - 1) / 4) * 100}%`;
+
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const submitBtn = document.getElementById('submitBtn');
+      if (prevBtn) prevBtn.style.visibility = currentStep === 1 ? 'hidden' : 'visible';
+      if (currentStep === 5) {
+        if (nextBtn) nextBtn.classList.add('hidden');
+        if (submitBtn) submitBtn.classList.remove('hidden');
+        buildPreviewCard();
+      } else {
+        if (nextBtn) nextBtn.classList.remove('hidden');
+        if (submitBtn) submitBtn.classList.add('hidden');
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function validateCurrentStep() {
+      if (currentStep === 1) {
+        const cls = document.getElementById('studentClass').value;
+        const seat = document.getElementById('seatNumber').value;
+        const name = document.getElementById('studentName').value.trim();
+        if (!cls || !seat || !name) { showToast('⚠️ 請完整填寫班級、座號與姓名！'); return false; }
+      } else if (currentStep === 2) {
+        const title = document.getElementById('bookTitle').value.trim();
+        const summary = document.getElementById('bookSummary').value.trim();
+        if (!title) { showToast('⚠️ 請填寫書名！'); return false; }
+        if (summary.length < 10) { showToast('⚠️ 請填寫核心主題（至少 10 字以上）！'); return false; }
+      } else if (currentStep === 3) {
+        if (!document.getElementById('songTitle').value.trim() || !document.getElementById('songLyrics').value.trim()) {
+          showToast('⚠️ 請填寫歌曲名稱與歌詞內容！'); return false;
+        }
+      }
+      return true;
+    }
+
+    function selectGenre(btn, genreName) {
+      document.querySelectorAll('.genre-chip').forEach(c => c.classList.remove('chip-selected'));
+      btn.classList.add('chip-selected');
+      document.getElementById('bookGenre').value = genreName;
+    }
+    function toggleMusicTag(btn, tag) {
+      if (selectedMusicTags.includes(tag)) { selectedMusicTags = selectedMusicTags.filter(t => t !== tag); btn.classList.remove('chip-selected'); }
+      else { selectedMusicTags.push(tag); btn.classList.add('chip-selected'); }
+      document.getElementById('musicStylePrompts').value = selectedMusicTags.join(', ').toLowerCase();
+    }
+    function selectArtStyle(btn, stylePrompt) {
+      document.querySelectorAll('.art-style-chip').forEach(c => c.classList.remove('chip-selected'));
+      btn.classList.add('chip-selected');
+      document.getElementById('selectedArtStyle').value = stylePrompt;
+    }
+
+    function updateWordCount(id, counterId, min, max) {
+      const count = document.getElementById(id).value.length;
+      const counter = document.getElementById(counterId);
+      if (!counter) return;
+      if (count < min) { counter.className = 'text-xs font-bold text-amber-600 bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-200'; counter.innerText = `${count} / ${max} 字 (建議再多寫一些)`; }
+      else if (count <= max) { counter.className = 'text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-200'; counter.innerText = `${count} / ${max} 字 (適中)`; }
+      else { counter.className = 'text-xs font-bold text-rose-600 bg-rose-100 px-2.5 py-0.5 rounded-full border border-rose-200'; counter.innerText = `${count} / ${max} 字 (已稍微超字數)`; }
+    }
+    function updateSimpleCount(id, counterId) {
+      const el = document.getElementById(counterId);
+      if (el) el.innerText = `${document.getElementById(id).value.length} 字`;
+    }
+
+    function insertLyricsTemplate() {
+      document.getElementById('songLyrics').value = `[Verse 1]\n深夜的行星上 只剩下一朵玫瑰的呢喃\n穿越億萬光年的距離 尋找愛的答案\n\n[Chorus]\n真正重要的東西 眼睛看不見\n用心感受的溫度 才是永恆的記憶`;
+    }
+
+    function buildPreviewCard() {
+      const cls  = document.getElementById('studentClass').value || '未填班級';
+      const seat = document.getElementById('seatNumber').value || '0';
+      const name = document.getElementById('studentName').value || '無名氏';
+      const title = document.getElementById('bookTitle').value || '未指定書名';
+      const genre = document.getElementById('bookGenre').value || '小說';
+      const summary = document.getElementById('bookSummary').value || '無說明';
+      const songTitle = document.getElementById('songTitle').value || '未命名主題曲';
+      const musicStyle = document.getElementById('musicStylePrompts').value || 'pop, acoustic guitar';
+      const lyrics = document.getElementById('songLyrics').value || '';
+      const artStyle = document.getElementById('selectedArtStyle').value;
+      const s1 = document.getElementById('scene1Prompt').value;
+      const s2 = document.getElementById('scene2Prompt').value;
+      const s3 = document.getElementById('scene3Prompt').value;
+
+      document.getElementById('previewStudentBadge').innerText = `${cls} ${seat} 號 ${name}`;
+      document.getElementById('previewBookTitle').innerText = `《${title}》`;
+      document.getElementById('previewGenre').innerText = genre;
+      document.getElementById('previewSummary').innerText = summary;
+      document.getElementById('previewSunoFull').innerText = `[Style]: ${musicStyle}\n[Title]: ${songTitle}\n\n${lyrics}`;
+      document.getElementById('previewMJFull').innerText = `Art Style: ${artStyle}\n\nScene 1: ${s1 || 'A lonely prince on small asteroid --ar 16:9'}\nScene 2: ${s2 || 'Glowing red rose close-up --ar 16:9'}\nScene 3: ${s3 || 'Starry night sky twinkling --ar 16:9'}`;
+    }
+
+    function loadSampleData() {
+      document.getElementById('studentClass').value = '9 班';
+      document.getElementById('seatNumber').value = '18';
+      document.getElementById('studentName').value = '陳大明';
+      document.getElementById('bookTitle').value = '小王子 (The Little Prince)';
+      document.getElementById('bookAuthor').value = '安東尼·聖修伯里';
+      document.getElementById('bookSummary').value = '故事講述來自 B-612 星球的小王子在各個星球旅行，最終來到地球遇見飛行員與狐狸。透過與玫瑰和狐狸的相處，小王子明白了「馴服」與責任的意義，領悟到眼中所見皆是表象，唯有用心才能看清真實的愛。';
+      updateWordCount('bookSummary', 'summaryCounter', 50, 200);
+      document.getElementById('bookFavoritePart').value = '狐狸告別小王子時說：「正因為你為你的玫瑰花花費了時間，你的玫瑰才變得如此重要。」這句話深深觸動我，讓我明白付出與陪伴的價值。';
+      updateSimpleCount('bookFavoritePart', 'partCounter');
+      document.getElementById('bookImpact').value = '讀完這本書後，我開始更加珍惜身邊的朋友，不再把別人的好視為理所當然，也提醒自己在忙碌的課業中保持一顆單純的心。';
+      updateSimpleCount('bookImpact', 'impactCounter');
+      document.getElementById('songTitle').value = 'B-612 的星空尋覓 (Seeking Stars)';
+      document.getElementById('musicStylePrompts').value = 'acoustic guitar, warm male vocal, emotional piano, gentle 88 bpm';
+      document.getElementById('songLyrics').value = `[Verse 1]\n風吹過金色的麥浪 帶走微小的孤單\n星球上獨自盛開的玫瑰 訴說著眷戀與遺憾\n\n[Chorus]\n真正重要的東西 眼睛永遠看不見\n用心擁抱每一個瞬間 讓愛成為星空下的誓言`;
+      document.getElementById('scene1Desc').value = '小王子站在巨大的沙丘頂端，仰望閃爍的夕陽星空';
+      document.getElementById('scene1Prompt').value = 'A small prince standing alone on top of a golden sand dune, sunset sky filled with glittering stars, cinematic fantasy --ar 16:9';
+      document.getElementById('scene2Desc').value = '小王子與金黃色的狐狸在草地上深情對視';
+      document.getElementById('scene2Prompt').value = 'The little prince kneeling beside a friendly golden fox in a lush meadow, warm afternoon sunlight, soft focus --ar 16:9';
+      document.getElementById('scene3Desc').value = '滿天星斗散發金黃微光，漫天流星劃過夜空';
+      document.getElementById('scene3Prompt').value = 'Thousands of glowing laughing stars scattered across a deep indigo night sky, whimsical watercolor fantasy --ar 16:9';
+      showToast('✨ 已為您載入《小王子》範例資料！');
+      if (currentStep === 5) buildPreviewCard();
+    }
+
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      const payload = {
+        timestamp: new Date().toISOString(),
+        studentClass: document.getElementById('studentClass').value,
+        seatNumber: document.getElementById('seatNumber').value,
+        studentName: document.getElementById('studentName').value,
+        bookTitle: document.getElementById('bookTitle').value,
+        bookAuthor: document.getElementById('bookAuthor').value,
+        bookGenre: document.getElementById('bookGenre').value,
+        bookSummary: document.getElementById('bookSummary').value,
+        bookFavoritePart: document.getElementById('bookFavoritePart').value,
+        bookImpact: document.getElementById('bookImpact').value,
+        songTitle: document.getElementById('songTitle').value,
+        musicStylePrompts: document.getElementById('musicStylePrompts').value,
+        songLyrics: document.getElementById('songLyrics').value,
+        artStyle: document.getElementById('selectedArtStyle').value,
+        scene1Desc: document.getElementById('scene1Desc').value,
+        scene1Prompt: document.getElementById('scene1Prompt').value,
+        scene2Desc: document.getElementById('scene2Desc').value,
+        scene2Prompt: document.getElementById('scene2Prompt').value,
+        scene3Desc: document.getElementById('scene3Desc').value,
+        scene3Prompt: document.getElementById('scene3Prompt').value
+      };
+
+      const summaryText = `【學生】${payload.studentClass} ${payload.seatNumber}號 ${payload.studentName}
+【書名】《${payload.bookTitle}》(${payload.bookGenre})
+【AI 歌名】${payload.songTitle}
+【Suno 曲風】${payload.musicStylePrompts}
+【歌詞】
+${payload.songLyrics}
+
+【Midjourney 分鏡提示詞】
+Scene 1: ${payload.scene1Prompt}
+Scene 2: ${payload.scene2Prompt}
+Scene 3: ${payload.scene3Prompt}`;
+
+      document.getElementById('successPromptBundle').innerText = summaryText;
+
+      if (gasWebAppUrl) {
+        try {
+          await fetch(gasWebAppUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        } catch (err) { console.error('GAS error:', err); }
+      }
+
+      triggerConfetti();
+      document.getElementById('successModal').classList.remove('hidden');
+    }
+
+    function triggerConfetti() {
+      if (typeof confetti === 'function') {
+        confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors: ['#1E6091', '#FF6B6B', '#F4A261', '#2A9D8F'] });
+      }
+    }
+
+    function copyText(elementId) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      const text = el.innerText || el.value;
+      const tmp = document.createElement('textarea');
+      tmp.value = text; document.body.appendChild(tmp); tmp.select();
+      try { document.execCommand('copy'); showToast('📋 內容已複製到剪貼簿！'); } catch(e) { showToast('⚠️ 複製失敗，請手動複製'); }
+      document.body.removeChild(tmp);
+    }
+
+    function showToast(msg) {
+      const t = document.createElement('div');
+      t.className = 'fixed bottom-6 right-6 z-50 bg-slate-900 text-white text-xs font-bold px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 border border-slate-700';
+      t.innerHTML = msg; document.body.appendChild(t);
+      setTimeout(() => t.remove(), 3000);
+    }
+  </script>
+</body>
+</html>
